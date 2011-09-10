@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+lang="en">
+<head>
+<title>Luatcc</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<link rel="stylesheet" href="doc.css" type="text/css"/>
+</head>
+<body>
+
+<div class="chapter" id="header">
+<img width="128" height="128" alt="luatcc" src="luatcc.png"/>
+<p>Inline C for the Lua language</p>
+<p class="bar">
+<a href="index.html">home</a> &middot;
+<a href="index.html#download">download</a> &middot;
+<a href="index.html#installation">installation</a> &middot;
+<a href="index.html#manual">manual</a>
+</p>
+</div>
+
+<div class="chapter">
+<h1>1 - About Luatcc</h1>
+
+<p>Luatcc is a Lua binding for libtcc, which is the core library of <a href="http://fabrice.bellard.free.fr/tcc/">TCC, the
+Tiny C Compiler</a>. Primary goal of this
+module is to be an illustration for the Gem <em>Interpreted C Modules</em> from the
+book <a href="http://www.lua.org/gems/">Lua Programming Gems</a>. As this module may be
+of interest independently from the book, I made it available here.</p>
+
+<p>Luatcc features a module loader that allows to load C modules directly from
+sources. To activate the loader you just have to load the tcc.loader module,
+which will install itself in Lua 5.1 package system.</p>
+
+<p>libtcc binding is not complete. Only the functions necessary to implement the
+C source module loader have been bound. Also it is very low level (it maps
+directly to libtcc C API). However I'm open to suggestions or requests to add
+more bindings or to implement a higher level interface in the future. Just ask
+:-)</p>
+
+<h2>Support</h2>
+
+<p>All support is done through the <a href="http://www.lua.org/lua-l.html">Lua mailing list</a>.
+If the traffic becomes too important a specialized mailing list will be
+created.</p>
+
+<p>Feel free to ask for further developments. I can't guarantee that I'll develop
+everything you ask, but as this module currently exists only for pedagogical
+purpose and is not actually used there is very little chance that I develop it
+anymore if you don't ask me to.</p>
+
+<h2>Credits</h2>
+
+<p>This module is written and maintained by <a href="mailto:jerome.vuarand@gmail.com">Jérôme Vuarand</a>.
+It is originally based on <a href="http://luaforge.net/projects/lua-tcc/">lua-tcc</a>
+module by Javier Guerra and has been extended to support a bigger part of
+libtcc API and to work as a Lua module loader.</p>
+
+<p>This website and Luatcc downloadable packages are generously hosted by
+<a href="http://luaforge.net/">Luaforge.net</a>. Consider making a donation.</p>
+
+<p>Luatcc is available under a <a href="LICENSE.txt">MIT-style license</a>.</p>
+
+</div>
+
+<div class="chapter">
+<h1>2 - <a name="download">Download</a></h1>
+
+<p>Luatcc sources are available in its Mercurial repository:</p>
+
+<pre><code>hg clone http://piratery.net/hg/luatcc/
+</code></pre>
+
+<p>Tarballs of the latest code can be downloaded directly from there: as
+<a href="http://piratery.net/hg/luatcc/archive/tip.tar.gz">gz</a>,
+<a href="http://piratery.net/hg/luatcc/archive/tip.tar.bz2">bz2</a> or
+<a href="http://piratery.net/hg/luatcc/archive/tip.zip">zip</a>.</p>
+
+<p>Alternatively Luatcc is available on its <a href="http://luaforge.net/frs/?group_id=255">Luaforge project page</a>.</p>
+
+</div>
+
+<div class="chapter">
+<h1>3 - <a name="installation">Installation</a></h1>
+
+<h2>Build instructions</h2>
+
+<p>To build Luatcc edit Makefile to configure the install directories and
+options, then run make in the top directory:</p>
+
+<pre><code>$ vi Makefile
+$ make
+$ make test
+$ make install
+</code></pre>
+
+<h2>TCC</h2>
+
+<p>To use Luatcc you need TCC. The recommended version is 0.9.25. Luatcc does
+work with 0.9.24 and 0.9.23, but you need to uncomment a line in the Makefile
+because there is no way to detect the 0.9.25 API change automatically. TCC is
+available at:</p>
+
+<ul>
+    <li><a href="http://bellard.org/tcc/">http://bellard.org/tcc/</a></li>
+</ul>
+
+<h2>Testing the module</h2>
+
+<p>In the test subdirectory you will find some test programs to check that
+everything is working properly. They are run by the "make test" target,
+look at each testx.lua file to have an idea of what each test does.</p>
+
+</div>
+
+<div class="chapter">
+<h1>4 - <a name="manual">Manual</a></h1>
+<p>Here you can find a list of the functions present in the module and how to use them. Luatcc main module follows Lua 5.1 package system, see the <a href="http://www.lua.org/manual/5.1/">Lua 5.1 manual</a> for further explanations.</p>
+	<div class="section">
+	<h2><a name="functions">4.1 - Module functions</a></h2>
+These functions are global to the module.		<div class="function">
+		<h3><a name="tcc.new"><code>tcc.new ()</code></a></h3>
+		<p>Returns a new TCC compiling context. This context can be used to compile C code and dynamically execute it.
+<pre>
+     local context = tcc.new()
+</pre>
+</p>
+		</div>
+	</div>
+	<div class="section">
+	<h2><a name="context_methods">4.2 - Context methods</a></h2>
+These functions are the method of the compiler context returned by <code>tcc.new</code>.		<div class="function">
+		<h3><a name="context:add_include_path"><code>context:add_include_path (path)</code></a></h3>
+		<p>Adds an include path to the context. <code>#include</code> directives in compiled sources will look for header files in paths provided by that function and some system-wide paths defined when compiling TCC.</p>
+		</div>
+		<div class="function">
+		<h3><a name="context:compile"><code>context:compile (source [, chunkname])</code></a></h3>
+		<p>Compiles a C source file inside the context. Optionnal <code>chunkname</code> argument can be a string that will be displayed in error messages (typically it will be the source file from which <code>source</code> is extracted, if any).
+<pre>
+     context:compile[[
+          #include &lt;lua.h&gt;
+          int hello(lua_State* L)
+          {
+               lua_pushstring(L, "Hello World!");
+               return 1;
+          }
+     ]]
+</pre>
+</p>
+		</div>
+		<div class="function">
+		<h3><a name="context:add_library_path"><code>context:add_library_path (path)</code></a></h3>
+		<p>Adds a library path to the context. <code>context:add_library</code> will look for libraries in the paths provided by that function and in some system-wide paths defined when compiling TCC.</p>
+		</div>
+		<div class="function">
+		<h3><a name="context:add_library"><code>context:add_library (libraryname)</code></a></h3>
+		<p>Adds a library to the context. This can be used to load static libraries or import libraries for dynamically loaded libraries. <code>libraryname</code> is the short name of the library (for example short name of liblua51.a is <code>"lua51"</code>).</p>
+		</div>
+		<div class="function">
+		<h3><a name="context:relocate"><code>context:relocate ()</code></a></h3>
+		<p>Performs the actual linking of the compiled sources and libraries present in the context. This function returns nothing, to access externally accessible symbols from the linked code use <code>context:get_symbol</code>.
+<pre>
+     context:relocate()
+</pre>
+</p>
+		</div>
+		<div class="function">
+		<h3><a name="context:get_symbol"><code>context:get_symbol (symbolname)</code></a></h3>
+		<p>This function looks for a symbol in the compiled code present in the context. The symbol is cast to a <a href="http://www.lua.org/manual/5.1/manual.html#lua_CFunction"><code>lua_CFunction</code></a>, and returned as a <code>function</code>. You have to make sure that the symbol matches <a href="http://www.lua.org/manual/5.1/manual.html#lua_CFunction"><code>lua_CFunction</code></a>, otherwise calling the returned function has unexpected behaviour (which is likely to be a crash).
+<pre>
+     local hello = context:get_symbol("hello")
+     print(hello()) -- Should output "Hello World!"
+</pre>
+</p>
+		</div>
+	</div>
+	<div class="section">
+	<h2><a name="module_loader">4.3 - C source module loader</a></h2>
+	<p>Luatcc features a new module loader. That loader will load C modules directly from source files. To activate the loader, you juste have to load the <code>tcc.loader</code> submodule:
+<pre>
+     require("tcc.loader")
+</pre>
+Loading the <code>tcc.loader</code> submodule automatically installs the loader in Lua package system. Any further call to <code>require</code> will use the loader.</p>
+
+	<p>The C source module loader looks for C source files according to the path in <code>package.tccpath</code>, which default value is <code>"./?.c"</code>. Just like for <a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.path"><code>package.path</code></a> and <a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.cpath"><code>package.cpath</code></a>, the interrogation marks will be replaced with the module name, in which all dots have been replaced with a "directory separator" (such as "<code>/</code>" in Unix).</p>
+
+	<p>Error reporting is done the same way than with the predefined module loaders. Also the C source module loader has the lowest priority, it is invoked last if no other loader can locate a module. To change loader priority you have to manually alter the <code>package.loaders</code> table.</p>
+	</div>
+</div>
+
+<div class="chapter" id="footer">
+<small>Last update: 2010-05-23 04:42:09 CEST</small>
+</div>
+
+</body>
+</html>
+
